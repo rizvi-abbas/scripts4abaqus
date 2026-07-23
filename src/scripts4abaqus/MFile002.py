@@ -726,8 +726,8 @@ def createEqStrainRatio1(name, odbFile, subject, lesion):
     odb.save()
     odb.close()
 
-def createFeild1(odb,instance,labels,data,name,description):
-    tmpField = odb.steps['Step-1'].frames[-1].FieldOutput(name=name, description=description, type=SCALAR)
+def createFeild1(odb,instance,labels,data,name,description,type=SCALAR):
+    tmpField = odb.steps['Step-1'].frames[-1].FieldOutput(name=name, description=description, type=type)
     tmpField.addData(position=INTEGRATION_POINT, instance=odb.rootAssembly.instances[instance], labels=labels, data=data)
 
 
@@ -744,11 +744,9 @@ def calculateEqStrain1(array):
 
     return (2.0 / 3.0) * np.sqrt( (e11**2 + e22**2 + e33**2 - e11*e22 - e22*e33 - e33*e11) + 3.0 * (e12**2 + e23**2 + e31**2) )
 
-import numpy as np
 
-def calculateAxialStress1(stress_array):
+def calculateAxialStress1(stress_array, metadata):
     np = sys.modules['numpy']
-    global metadata
  
     n = eval(metadata['axis_06'])
     n1, n2, n3 = n[0], n[1], n[2]
@@ -822,15 +820,16 @@ def writeFieldTensors1(job,output_file,fields,metadata={}):
 
     
     apply_func_all = {
-        ('E','mises'): (calculateEqStrain1, 'data'),
+        ('E','mises'): (calculateEqStrain1, 'data', []),
+        ('S','axial'): (calculateAxialStress1, 'data', [metadata]),
     }
     
     for field in fields:
         field2 = field.split('_')
         if len(field2) == 2:
-            apply_func, field2[1] = apply_func_all.get(tuple(field2), (None, field2[1]))
+            apply_func, field2[1], args = apply_func_all.get(tuple(field2), (None, field2[1], []))
             data = np.array([getattr(v,field2[1]) for v in odb.steps['Step-1'].frames[-1].fieldOutputs[field2[0]].values])
-            if apply_func is not None: data = apply_func(data)
+            if apply_func is not None: data = apply_func(data,*args)
             TensorsAppend_data1(file_path, field, data )
             position.add(odb.steps['Step-1'].frames[-1].fieldOutputs[field2[0]].values[0].position)
 
