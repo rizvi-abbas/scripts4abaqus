@@ -671,7 +671,8 @@ def create_image1(fileName,legend=False):
 
 def create_odb_from_inp1(inp_filepath, odb_filepath):
     np = sys.modules['numpy']
-    reader = InpFileValuesReader1(inp_filepath)
+    from pathlib import Path
+    reader = InpFileValuesReader1(Path(inp_filepath))
     for odb in session.odbs.values():
         odb.close()
     odb = Odb(name='Generated_ODB', analysisTitle='Imported from INP', path=odb_filepath)
@@ -747,7 +748,8 @@ import numpy as np
 
 def calculateAxialStress1(stress_array):
     np = sys.modules['numpy']
-
+    global metadata
+ 
     n = eval(metadata['axis_06'])
     n1, n2, n3 = n[0], n[1], n[2]
     
