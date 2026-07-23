@@ -695,6 +695,7 @@ def create_odb_from_inp1(inp_filepath, odb_filepath):
     odb.close()
     
 def add_result_to_odb1(odbFile, file_path, fields, metadata):
+    metadata = TensorsGet_metadata1(file_path)
     for odb in session.odbs.values():
         odb.close()
     odb = session.openOdb(name=odbFile,readOnly=False)
@@ -815,7 +816,7 @@ def TensorsGet_data1(file_path, internal_file):
 
 
             
-def writeFieldTensors1(job,output_file,fields,metadata={}):
+def writeFieldTensors1(job,output_file,fields,metadata):
     from pathlib import Path
     import numpy as np
     file_path = Path(output_file)
