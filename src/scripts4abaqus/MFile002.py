@@ -841,7 +841,7 @@ def writeFieldTensors1(job,output_file,fields,metadata={}):
             TensorsAppend_data1(file_path, field, data )
             dataPosition[field] = odb.steps['Step-1'].frames[-1].fieldOutputs[field2[0]].values[0].position
 
-    for coord in  list(set(dataPosition.values())) list(position):
+    for coord in list(set(dataPosition.values())):
         TensorsAppend_data1(file_path,f"COORD_{coord}",np.array([getattr(v,'data') for v in odb.steps['Step-1'].frames[-1].fieldOutputs['COORD'].getSubset(position=coord).values]) )
     #TensorsAppend_data1(file_path,'COORD_NODAL',np.array([getattr(v,'data') for v in odb.steps['Step-1'].frames[-1].fieldOutputs['COORD'].getSubset(position=NODAL).values]) )
     #TensorsAppend_data1(file_path,'COORD_INTEGRATION_POINT',np.array([getattr(v,'data') for v in odb.steps['Step-1'].frames[-1].fieldOutputs['COORD'].getSubset(position=INTEGRATION_POINT).values]) )
