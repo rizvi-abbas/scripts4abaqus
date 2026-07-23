@@ -647,11 +647,11 @@ def create_viewports1(metadata, views=['Neck-Axis','Neck-Plane','Anteversion-Pla
             axis2=tuple(eval(metadata['axis_06'])),
             followDeformation=True)
     if 'Shaft-Axis' in views:
-        session.viewports['Viewport: 1'].odbDisplay.ViewCut(name='Shaft-Axis', shape=CYLINDER, origin=tuple(eval(metadata['Hip_Joint_Centre'])),
+        session.viewports['Viewport: 1'].odbDisplay.ViewCut(name='Shaft-Axis', shape=CYLINDER, origin=tuple(eval(metadata['Shaft_Mid'])),
             cylinderAxis=tuple(eval(metadata['axis_06'])), 
             followDeformation=True, referenceFrame=CURRENT_FRAME)
     if 'Shaft-Plane' in views:
-        session.viewports['Viewport: 1'].odbDisplay.ViewCut(name='Shaft-Plane', shape=PLANE, origin=tuple(eval(metadata['Hip_Joint_Centre'])),
+        session.viewports['Viewport: 1'].odbDisplay.ViewCut(name='Shaft-Plane', shape=PLANE, origin=tuple(eval(metadata['Shaft_Mid'])),
             normal=tuple(eval(metadata['axis_06'])),
             axis2=tuple(eval(metadata['axis_02'])),
             followDeformation=True)
@@ -701,9 +701,11 @@ def add_result_to_odb1(odbFile, file_path, fields):
     #odb = openOdb(path=odbFile, readOnly=False)
     for field in fields:
         data = TensorsGet_data1(file_path, f"{field}.npy")
+        field_split = field.split('_')
         if len(data.shape) > 1:
             if data.shape[1] == 6:
                 dataType = TENSOR_3D_FULL
+                field = field_split[0]
         else:
             dataType = SCALAR
             data = tuple((v,) for v in data)
