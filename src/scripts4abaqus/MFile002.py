@@ -694,23 +694,24 @@ def create_odb_from_inp1(inp_filepath, odb_filepath):
     odb.save()
     odb.close()
     
-def add_result_to_odb1(odbFile, file_path, fields):
+def add_result_to_odb1(odbFile, file_path, fields, metadata):
     for odb in session.odbs.values():
         odb.close()
     odb = session.openOdb(name=odbFile,readOnly=False)
     #odb = openOdb(path=odbFile, readOnly=False)
     for field in fields:
         data = TensorsGet_data1(file_path, f"{field}.npy")
-        field_split = field.split('_')
+        dataPosition = eval(metadata['dataPosition'])[field]
+        field2 = field.split('_')
         if len(data.shape) > 1:
-            if data.shape[1] == 6 and field_split[1] == 'data':
+            if data.shape[1] == 6 and field2[1] == 'data':
                 dataType = TENSOR_3D_FULL
-                field = field_split[0]
+                field = field2[0]
         else:
             dataType = SCALAR
             data = tuple((v,) for v in data)
         labels = tuple(range(1,len(data)+1))
-        createFeild1(odb,'PART-1-1',labels,data,field,'',dataType)
+        createFeild1(odb,'PART-1-1',labels,data,field,'',dataType,dataPosition)
     odb.save()
     odb.close()
     
@@ -729,11 +730,11 @@ def createEqStrainRatio1(name, odbFile, subject, lesion):
     data = tuple((v,) for v in data)
     
     labels = tuple(range(1,len(data)+1))
-    createFeild1(odb,'PART-1-1',labels,data,name,'',SCALAR)
+    createFeild1(odb,'PART-1-1',labels,data,name,'',SCALAR,INTEGRATION_POINT)
     odb.save()
     odb.close()
 
-def createFeild1(odb,instance,labels,data,name,description,dataType,dataPosition=INTEGRATION_POINT):
+def createFeild1(odb,instance,labels,data,name,description,dataType,dataPosition):
     tmpField = odb.steps['Step-1'].frames[-1].FieldOutput(name=name, description=description, type=dataType)
     tmpField.addData(position=dataPosition, instance=odb.rootAssembly.instances[instance], labels=labels, data=data)
 
