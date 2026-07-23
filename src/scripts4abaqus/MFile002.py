@@ -706,7 +706,7 @@ def add_result_to_odb1(odbFile, file_path, fields):
                 dataType = TENSOR_3D_FULL
         else:
             dataType = SCALAR
-        data = tuple((v,) for v in data)
+            data = tuple((v,) for v in data)
         labels = tuple(range(1,len(data)+1))
         createFeild1(odb,'PART-1-1',labels,data,field,'',dataType)
     odb.save()
