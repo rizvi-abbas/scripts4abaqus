@@ -733,9 +733,9 @@ def createEqStrainRatio1(name, odbFile, subject, lesion):
     odb.save()
     odb.close()
 
-def createFeild1(odb,instance,labels,data,name,description,dataType):
+def createFeild1(odb,instance,labels,data,name,description,dataType,dataPosition=INTEGRATION_POINT):
     tmpField = odb.steps['Step-1'].frames[-1].FieldOutput(name=name, description=description, type=dataType)
-    tmpField.addData(position=INTEGRATION_POINT, instance=odb.rootAssembly.instances[instance], labels=labels, data=data)
+    tmpField.addData(position=dataPosition, instance=odb.rootAssembly.instances[instance], labels=labels, data=data)
 
 
 
@@ -819,7 +819,7 @@ def writeFieldTensors1(job,output_file,fields,metadata={}):
     import numpy as np
     file_path = Path(output_file)
     file_path.unlink(missing_ok=True)
-    position = set()
+    dataPosition = {}
     odb = session.openOdb(name=job)
     if 'SectionName' in fields:
         fields.remove('SectionName')
@@ -838,18 +838,16 @@ def writeFieldTensors1(job,output_file,fields,metadata={}):
             data = np.array([getattr(v,field2[1]) for v in odb.steps['Step-1'].frames[-1].fieldOutputs[field2[0]].values])
             if apply_func is not None: data = apply_func(data,*args)
             TensorsAppend_data1(file_path, field, data )
-            position.add(odb.steps['Step-1'].frames[-1].fieldOutputs[field2[0]].values[0].position)
+            dataPosition[field] = odb.steps['Step-1'].frames[-1].fieldOutputs[field2[0]].values[0].position
 
-    for coord in list(position):
+    for coord in  list(set(dataPosition.values())) list(position):
         TensorsAppend_data1(file_path,f"COORD_{coord}",np.array([getattr(v,'data') for v in odb.steps['Step-1'].frames[-1].fieldOutputs['COORD'].getSubset(position=coord).values]) )
     #TensorsAppend_data1(file_path,'COORD_NODAL',np.array([getattr(v,'data') for v in odb.steps['Step-1'].frames[-1].fieldOutputs['COORD'].getSubset(position=NODAL).values]) )
     #TensorsAppend_data1(file_path,'COORD_INTEGRATION_POINT',np.array([getattr(v,'data') for v in odb.steps['Step-1'].frames[-1].fieldOutputs['COORD'].getSubset(position=INTEGRATION_POINT).values]) )
     
-    
-
-    metadata
+    metadata['dataPosition'] = str(dataPosition)
     TensorsAppend_metadata1(file_path, metadata)
-    odb.close()    
+    odb.close()
     
 ######################################
 
