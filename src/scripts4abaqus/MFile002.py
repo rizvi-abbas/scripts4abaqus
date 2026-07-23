@@ -743,7 +743,30 @@ def calculateEqStrain1(array):
 
     return (2.0 / 3.0) * np.sqrt( (e11**2 + e22**2 + e33**2 - e11*e22 - e22*e33 - e33*e11) + 3.0 * (e12**2 + e23**2 + e31**2) )
 
+import numpy as np
 
+def calculateAxialStress1(stress_array):
+    np = sys.modules['numpy']
+
+    n = eval(metadata['axis_06'])
+    n1, n2, n3 = n[0], n[1], n[2]
+    
+    # Extract stress components for all N points at once
+    S11 = stress_array[:, 0]
+    S22 = stress_array[:, 1]
+    S33 = stress_array[:, 2]
+    S12 = stress_array[:, 3]
+    S13 = stress_array[:, 4]
+    S23 = stress_array[:, 5]
+    
+    # Calculate sigma_n for all points simultaneously using array arithmetic
+    sigma_n = (S11 * (n1**2) + 
+               S22 * (n2**2) + 
+               S33 * (n3**2) + 
+               2.0 * S12 * n1 * n2 + 
+               2.0 * S13 * n1 * n3 + 
+               2.0 * S23 * n2 * n3)
+    return sigma_n
 
 def TensorsAppend_data1(file_path, data_name, data_value, unique_string=False):
     np = sys.modules['numpy']
