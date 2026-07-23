@@ -703,7 +703,7 @@ def add_result_to_odb1(odbFile, file_path, fields):
         data = TensorsGet_data1(file_path, f"{field}.npy")
         field_split = field.split('_')
         if len(data.shape) > 1:
-            if data.shape[1] == 6:
+            if data.shape[1] == 6 and field_split[1] == 'data':
                 dataType = TENSOR_3D_FULL
                 field = field_split[0]
         else:
