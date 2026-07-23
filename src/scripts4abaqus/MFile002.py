@@ -694,7 +694,7 @@ def create_odb_from_inp1(inp_filepath, odb_filepath):
     odb.save()
     odb.close()
     
-def add_result_to_odb1(odbFile, file_path, fields, metadata):
+def add_result_to_odb1(odbFile, file_path, fields):
     metadata = TensorsGet_metadata1(file_path)
     for odb in session.odbs.values():
         odb.close()
