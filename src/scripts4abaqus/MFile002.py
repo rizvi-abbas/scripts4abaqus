@@ -703,15 +703,14 @@ def add_result_to_odb1(odbFile, file_path, fields):
     for field in fields:
         data = TensorsGet_data1(file_path, f"{field}.npy")
         field2 = field.split('_')
-        dataInvariants = eval(metadata['dataInvariants'])[field2[0]]
         dataPosition = eval(metadata['dataPosition'])[field2[0]]
         dataType = eval(metadata['dataType'])[field2[0]]
-        if field2[1] == 'data' and dataType == TENSOR_3D_FULL:
+        if field2[1] == 'data' and dataType in [TENSOR_3D_FULL, VECTOR]:
             field = field2[0]
         else:
             data = tuple((v,) for v in data)
         labels = tuple(range(1,len(data)+1))
-        createFeild1(odb,'PART-1-1',labels,data,field,'',dataType,dataPosition,validInvariants=dataInvariants)
+        createFeild1(odb,'PART-1-1',labels,data,field,'',dataType,dataPosition)
         
     odb.save()
     odb.close()
@@ -735,8 +734,8 @@ def createEqStrainRatio1(name, odbFile, subject, lesion):
     odb.save()
     odb.close()
 
-def createFeild1(odb,instance,labels,data,name,description,dataType,dataPosition, validInvariants=()):
-    tmpField = odb.steps['Step-1'].frames[-1].FieldOutput(name=name, description=description, type=dataType, validInvariants=validInvariants)
+def createFeild1(odb,instance,labels,data,name,description,dataType,dataPosition):
+    tmpField = odb.steps['Step-1'].frames[-1].FieldOutput(name=name, description=description, type=dataType)
     tmpField.addData(position=dataPosition, instance=odb.rootAssembly.instances[instance], labels=labels, data=data)
 
 
@@ -821,7 +820,6 @@ def writeFieldTensors1(job,output_file,fields,metadata={},apply_func_all={}):
     import numpy as np
     file_path = Path(output_file)
     file_path.unlink(missing_ok=True)
-    dataInvariants = {}
     dataPosition = {}
     dataType = {}
     odb = session.openOdb(name=job)
@@ -839,7 +837,6 @@ def writeFieldTensors1(job,output_file,fields,metadata={},apply_func_all={}):
             data = np.array([getattr(v,field2[1]) for v in odb.steps['Step-1'].frames[-1].fieldOutputs[field2[0]].values])
             if apply_func is not None: data = apply_func(data,*args)
             TensorsAppend_data1(file_path, field, data )
-            dataInvariants[field2[0]] = odb.steps['Step-1'].frames[-1].fieldOutputs[field2[0]].validInvariants
             dataPosition[field2[0]] = odb.steps['Step-1'].frames[-1].fieldOutputs[field2[0]].locations[0].position
             dataType[field2[0]] = odb.steps['Step-1'].frames[-1].fieldOutputs[field2[0]].type
 
@@ -850,7 +847,6 @@ def writeFieldTensors1(job,output_file,fields,metadata={},apply_func_all={}):
     
     metadata['dataType'] = str(dataType)
     metadata['dataPosition'] = str(dataPosition)
-    metadata['dataInvariants'] = str(dataInvariants)
     TensorsAppend_metadata1(file_path, metadata)
     odb.close()
     
