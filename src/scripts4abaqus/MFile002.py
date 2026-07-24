@@ -816,7 +816,7 @@ def TensorsGet_data1(file_path, internal_file):
 
 
             
-def writeFieldTensors1(job,output_file,fields,metadata):
+def writeFieldTensors1(job,output_file,fields,metadata={},apply_func_all={}):
     from pathlib import Path
     import numpy as np
     file_path = Path(output_file)
@@ -827,11 +827,6 @@ def writeFieldTensors1(job,output_file,fields,metadata):
         fields.remove('SectionName')
         #append_data(file_path,'SectionName',df[['Section Name']],unique_string=True)
 
-    
-    apply_func_all = {
-        ('E','mises'): (calculateEqStrain1, 'data', []),
-        ('S','axial'): (calculateAxialStress1, 'data', [metadata]),
-    }
     
     for field in fields:
         field2 = field.split('_')
